@@ -20,4 +20,13 @@ class RemoteCache
     op = @opb.buildPUT
     op.perform(key,value)
 	end
+  
+  ## This method is retutning a plain TCPSocket, probably in the future I can find a better abstraction
+  def get_transporter
+    TCPSocket.open(@host, @port)
+  end
+  ## This method is retutning a plain TCPSocket, probably in the future I can find a better abstraction
+  def release_transporter s
+    s.close
+  end
 end

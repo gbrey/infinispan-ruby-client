@@ -15,7 +15,7 @@ Look at spec/remotecache_spec.rb :P
     ./startServer.sh -r hotrod
 
 # Features to add
-* Support cache names (needs to be decided by Infinispan Team)
+* Support cache names (needs to be decided by Infinispan Team) - Code ready need more test
 * Add ping operation before any call
 * Validate response headers
 * Add Remaining operations

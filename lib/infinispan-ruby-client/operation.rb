@@ -4,16 +4,21 @@ class Operation
     @remotecache=rm
   end
   
+  ## I know this dispacher method is kind of ugly, but for know this is how I code in ruby
   def perform(*params)
-    if(params.size>=2)
+    if(params.size==2)
       perform_with_key_value(params[0],params[1])
     else
       perform_with_key(params[0])
     end
   end
-  
+  ## This method perform a key only value parameter, steps:
+  ## 1- Get a transporter object
+  ## 2- Write Header
+  ## 3- Write body with lenth and marshalled key
+  ## 4- Read response, unmarshall it and return it
   def perform_with_key key
-    s=TCPSocket.open(@remotecache.host, @remotecache.port)
+    s=@remotecache.get_transporter
 		##Send Header
 		s.write @header
 		##Send Body
@@ -28,12 +33,21 @@ class Operation
 #		puts "Value Lenght " + rspBodyValueLengh.to_s
 		rspBodyValue = s.read(rspBodyValueLengh)
 		mrspBodyValue = Marshal.load(rspBodyValue)
-		s.close
+
+    @remotecache.release_transporter s
+    
 		mrspBodyValue
   end
-  
+  ## This method perform a key only value parameter, steps:
+  ## 1- Set up a socket
+  ## 2- Write Header
+  ## 3- Write body with:
+  ## 3a- Lenght and marshalled key
+  ## 3b- lifespanSeconds and maxIdleTimeSeconds (currently missing)
+  ## 3c- Lenght and marshalled value
+  ## 4- Read and validate response
   def perform_with_key_value key, value
-    s=TCPSocket.open(@remotecache.host, @remotecache.port)
+    s=@remotecache.get_transporter
 		##Send Header
 		s.write @header
 		##Send Body
@@ -51,6 +65,6 @@ class Operation
 		#Handle response
 		rspHeader = s.read(5)
 #		puts "Header " + rspHeader.unpack('c*').to_s
-		s.close
+    @remotecache.release_transporter s
   end
 end
